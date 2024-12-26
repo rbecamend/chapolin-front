@@ -21,5 +21,3 @@ export const sendBatchToPeDePano = async ({ login, listaNups}) => {
 
     return response.json();
 };
-
-

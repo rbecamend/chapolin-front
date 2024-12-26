@@ -1,3 +1,5 @@
+dashboard.jsx
+
 import React, { useState, useEffect } from 'react';
 import { fetchNUPs, sendBatchToPeDePano } from '../services/api';
 import Pagination from '../components/Pagination';
@@ -14,7 +16,11 @@ const Dashboard = () => {
         try {
             const data = await fetchNUPs(page);
             setNups(data.nups);
-            setTotalPages(Math.ceil(data.total / data.tamanho));
+            if (data.nups.length < 100) {
+                setTotalPages(page);
+            } else {
+                setTotalPages((prev) => Math.max(prev, page + 1)); // Atualiza conforme necessário
+            }
         } catch (error) {
             console.error('Erro ao carregar NUPs:', error);
         }
@@ -58,3 +64,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
