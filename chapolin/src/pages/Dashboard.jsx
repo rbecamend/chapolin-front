@@ -1,5 +1,3 @@
-dashboard.jsx
-
 import React, { useState, useEffect } from 'react';
 import { fetchNUPs, sendBatchToPeDePano } from '../services/api';
 import Pagination from '../components/Pagination';

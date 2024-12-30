@@ -18,6 +18,21 @@
     background-color: #f4f4f4;
 }
 
+.table-container {
+    max-height: 400px; /* Define uma altura máxima */
+    overflow-y: auto; /* Adiciona rolagem vertical */
+    border: 1px solid #ddd; /* Para manter consistência visual */
+}
+
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
 .send-button {
     background-color: #007bff;
     color: white;
