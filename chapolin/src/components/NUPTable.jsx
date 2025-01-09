@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { sendBatchToPeDePano } from '../services/api';
 
-const NUPTable = ({ nups, onBatchSent }) => {
+const NUPTable = ({ nups, setNups }) => {
     const [login, setLogin] = useState({ cpf: '', senha: '' });
 
     const handleSendBatch = async () => {
@@ -10,7 +10,20 @@ const NUPTable = ({ nups, onBatchSent }) => {
                 login,
                 listaNups: nups.map((nup) => nup.nup),
             });
-            onBatchSent(result);
+
+            console.log('Resultado do envio:', result);
+
+            // Atualizar os estados das NUPs com base no resultado
+            const atualizados = nups.map((nup) => {
+                if (result.sucesso.includes(nup.nup)) {
+                    return { ...nup, estado: true }; // NUPs com sucesso são atualizados
+                }
+                return nup; // Os que falharam permanecem inalterados
+            });
+
+            setNups(atualizados);
+
+            alert('Lote enviado com sucesso!');
         } catch (error) {
             console.error('Erro ao enviar lote:', error);
             alert('Erro ao enviar lote.');
@@ -44,13 +57,13 @@ const NUPTable = ({ nups, onBatchSent }) => {
                     type="text"
                     placeholder="CPF"
                     value={login.cpf}
-                    onChange={(e) => setLogin({...login, cpf: e.target.value})}
+                    onChange={(e) => setLogin({ ...login, cpf: e.target.value })}
                 />
                 <input
                     type="password"
                     placeholder="Senha"
                     value={login.senha}
-                    onChange={(e) => setLogin({...login, senha: e.target.value})}
+                    onChange={(e) => setLogin({ ...login, senha: e.target.value })}
                 />
             </div>
             <button className="send-button" onClick={handleSendBatch}>
@@ -61,4 +74,3 @@ const NUPTable = ({ nups, onBatchSent }) => {
 };
 
 export default NUPTable;
-

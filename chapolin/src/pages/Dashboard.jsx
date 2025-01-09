@@ -5,55 +5,70 @@ import NUPTable from '../components/NUPTable';
 import Logs from '../components/Logs';
 
 const Dashboard = () => {
-    const [nups, setNups] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [logs, setLogs] = useState([]);
+    const [nups, setNups] = useState([]); // Lista de NUPs na página atual
+    const [currentPage, setCurrentPage] = useState(1); // Página atual
+    const [totalPages, setTotalPages] = useState(1); // Total de páginas
+    const [logs, setLogs] = useState([]); // Logs de envio
 
+    // Função para carregar NUPs do backend
     const loadNUPs = async (page) => {
         try {
-            const data = await fetchNUPs(page);
+            const data = await fetchNUPs(page); // Chamada da API para buscar NUPs
             setNups(data.nups);
+
+            // Atualiza o total de páginas com base na resposta
             if (data.nups.length < 100) {
                 setTotalPages(page);
             } else {
-                setTotalPages((prev) => Math.max(prev, page + 1)); // Atualiza conforme necessário
+                setTotalPages((prev) => Math.max(prev, page + 1));
             }
         } catch (error) {
             console.error('Erro ao carregar NUPs:', error);
+            setLogs((prevLogs) => [
+                ...prevLogs,
+                { success: false, message: 'Erro ao carregar NUPs.' },
+            ]);
         }
     };
 
+    // Função para enviar o lote de NUPs
     const handleSendBatch = async () => {
         try {
-            const nupIds = nups.map((nup) => nup.nup);
-            const result = await sendBatchToPeDePano(nupIds);
+            const nupIds = nups.map((nup) => nup.nup); // Extrai os NUPs da página atual
+            const result = await sendBatchToPeDePano({ listaNups: nupIds });
 
-            const successLogs = result.sucesso.map((item) => ({
+            // Gerar logs de sucesso
+            const successLogs = result.sucesso.map((nup) => ({
                 success: true,
-                message: `NUP ${item.nup} enviado com sucesso.`,
+                message: `NUP ${nup} enviado com sucesso.`,
             }));
 
-            const errorLogs = result.erros.map((item) => ({
+            // Gerar logs de erro
+            const errorLogs = result.erros.map((nup) => ({
                 success: false,
-                message: `Erro ao enviar NUP ${item.nup}: ${item.erro}`,
+                message: `Erro ao enviar NUP ${nup}.`,
             }));
 
-            setLogs([...logs, ...successLogs, ...errorLogs]);
-            loadNUPs(currentPage);
+            // Atualiza os logs e recarrega os NUPs
+            setLogs((prevLogs) => [...prevLogs, ...successLogs, ...errorLogs]);
+            loadNUPs(currentPage); // Recarrega a página atual após envio
         } catch (error) {
             console.error('Erro ao enviar lote:', error);
-            setLogs([...logs, { success: false, message: 'Erro geral ao enviar lote.' }]);
+            setLogs((prevLogs) => [
+                ...prevLogs,
+                { success: false, message: 'Erro geral ao enviar lote.' },
+            ]);
         }
     };
 
+    // Carregar NUPs ao montar o componente e ao mudar de página
     useEffect(() => {
         loadNUPs(currentPage);
     }, [currentPage]);
 
     return (
         <div className="dashboard">
-            <h1>Chapolin - Gestão de Nups</h1>
+            <h1>Chapolin - Gestão de NUPs</h1>
             <NUPTable nups={nups} onSendBatch={handleSendBatch} />
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             <Logs logs={logs} />
@@ -62,4 +77,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
